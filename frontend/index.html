@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Armέξ</title>
+    <link rel = "manifest" href = "manifest.json">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Τυλίγουμε τα πάντα στο app-container για το CSS Grid -->
+    <div id="app-container">
+        
+        <header>
+            <div id="leledometro">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                    <h3>Λελεδόμετρο</h3>
+                    <button id="edit-date-btn" style="background: none; border: none; font-size: 16px; cursor: pointer; padding: 0;">✏️</button>
+                </div>
+                <p><span id="days-left">ΧΧ</span> μέρες έμειναν!</p>
+            </div>
+            
+            <div id="stats-card">
+                <h2>Συνολικα Εξοδα</h2>
+                <div id="grand-total">0.00 €</div>
+                <div class="sub-stats">
+                    <span>Μέσα: <span id="inside-total">0.00 €</span></span>
+                    <span>Έξω: <span id="outside-total">0.00 €</span></span>
+                </div>
+            </div>
+        </header>
+
+        <main class="app-content">
+            <section class="card">
+                <h2>Προσθήκη Εξόδου</h2>
+                <form id="expense-form">
+                    <div class="form-group">
+                        <label>Κατηγορία</label>
+                        <select id="category-select" required>
+                            <option value="" disabled selected>Επίλεξε κατηγορία</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Υποκατηγορία</label>
+                        <select id="subcategory-select" required disabled>
+                            <option value="" disabled selected>Πρώτα επίλεξε κατηγορία</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Ποσό (€)</label>
+                        <input type="number" id="amount" step="0.01" min="0.01" required placeholder="π.χ. 1.50">
+                    </div>
+                    
+                    <div class="form-group">
+                        <input type="text" id="description" placeholder="Περιγραφή (προαιρετικό)">
+                    </div>
+                    
+                    <button type="submit" class="btn-submit">Αποθήκευση</button>
+                </form>
+            </section>
+
+            <section class="card">
+                <h2>Πρόσφατα Έξοδα</h2>
+                <ul id="recent-list" class="expense-list">
+                    <li class="empty-msg">Φορτώνουν...</li>
+                </ul>
+            </section>
+
+            <section class="card">
+                <h2>Ανάλυση Εξόδων</h2>
+                <div id="analysis-content">
+                    <!-- Άλλαξα τα IDs εδώ για να μην υπάρχουν διπλότυπα -->
+                    <p>Μέσα στο στρατόπεδο: <strong id="analysis-inside-total">0.00 €</strong></p>
+                    <p>Έξω από το στρατόπεδο: <strong id="analysis-outside-total">0.00 €</strong></p>
+                </div>
+                
+                <!-- Εδώ θα μπει το γράφημα αργότερα -->
+                <div class="chart-container" style="margin-top: 15px;">
+                    <canvas id="myChart"></canvas>
+                </div>
+            </section>
+
+            <section class="card">
+                <h2>Ρυθμίσεις</h2>
+                <button id="delete-all-btn" class="btn-danger">🗑️ Διαγραφή Όλων</button>
+            </section>
+        </main>
+
+        <footer>
+            <p>&copy; 2026 Armέξ. Όλα τα δικαιώματα διατηρούνται.</p>
+        </footer>
+        
+    </div> <!-- Τέλος του app-container -->
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Τα scripts πάντα στο τέλος του body! -->
+    <script src="app.js"></script>
+</body>
+</html>
