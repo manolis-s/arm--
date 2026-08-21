@@ -7,8 +7,7 @@ if ('serviceWorker' in navigator) {
 }
 
 
-const API_URL = "http://192.168.68.https://armex-q7rd.onrender.com:8000"
-
+const API_URL = "https://armex-q7rd.onrender.com";
 let expenseChart = null
 
 let categoriesData = []
