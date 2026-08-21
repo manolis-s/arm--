@@ -7,7 +7,7 @@ if ('serviceWorker' in navigator) {
 }
 
 
-const API_URL = "http://192.168.68.50:8000"
+const API_URL = "http://192.168.68.https://armex-q7rd.onrender.com:8000"
 
 let expenseChart = null
 
