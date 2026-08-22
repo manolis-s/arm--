@@ -24,7 +24,7 @@ document.getElementById("register-form").addEventListener("submit", async functi
 
         const data = await response.json()
         if(response.ok){
-            messageDiv= "Επιτυχής Συγγραφή! Μεταφορά στην σύνδεση..."
+            messageDiv.textContent= "Επιτυχής Συγγραφή! Μεταφορά στην σύνδεση..."
             messageDiv.className = "success"
 
             setTimeout(()=>{
