@@ -5,7 +5,7 @@ document.getElementById("register-form").addEventListener("submit", async functi
     const password = document.getElementById("password").value;
 
     const messageDiv = document.getElementById("message");
-    const submitBtn = document.getElementById("submit-btn");
+    const submitBtn = document.getElementById("register-btn");
 
     submitBtn.disabled = true;
     submitBtn.textContent = "Δημιουργία λογαριασμού...";
