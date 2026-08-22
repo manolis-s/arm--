@@ -95,7 +95,15 @@ async function fetchCategories(){
 
 async function fetchStats() {
     try {
-        const response = await fetch(`${API_URL}/stats/`);
+        const response = await fetch(`${API_URL}/stats/`,{
+            headers: {"Authorization": `Bearer ${token}` }
+        });
+
+        if(response.status === 401){
+            localStorage.removeItem("token");
+            window.location.href = "login.html";
+            return;
+        }
         const stats = await response.json();
 
         // 1. Αποθηκεύουμε τα νούμερα σε μεταβλητές (και βάζουμε το || 0 για ασφάλεια αν είναι άδεια η βάση)
@@ -139,13 +147,14 @@ expenseForm.addEventListener("submit", async (event)=>{
         const response = await fetch(`${API_URL}/expenses/`, {
             method: "POST",
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
             },
             body: JSON.stringify(expenseData)
         })
         if(response.ok){
             alert("Η καταχώρηση εξόδου ήταν επιτυχής!")
-            window.location.reload
+            window.location.reload()
         }
     } catch (error) {
         console.error("Σφάλμα καταχώρησης εξόδου:", error)
@@ -155,7 +164,9 @@ expenseForm.addEventListener("submit", async (event)=>{
 //prosfata eksoda//
 async function fetchRecentExpenses(){
     try{
-        const response = await fetch(`${API_URL}/expenses/recent`)
+        const response = await fetch(`${API_URL}/expenses/recent`,{
+            headers: {"Authorization": `Bearer ${token}` }
+        })
         const expenses = await response.json()
 
         const recentList = document.getElementById("recent-list")
@@ -248,7 +259,8 @@ document.getElementById("delete-all-btn").addEventListener("click", async () => 
     if (confirm("ΕΙΣΑΙ ΣΙΓΟΥΡΟΣ; Θα διαγραφούν ΟΛΑ τα έξοδα οριστικά! Δεν υπάρχει επιστροφή.")) {
         try {
             const response = await fetch(`${API_URL}/expenses/all/`, {
-                method: "DELETE" // Χρησιμοποιούμε τη μέθοδο DELETE
+                method: "DELETE",
+                headers: {"Authorization": `Bearer ${token}` }
             });
             
             if (response.ok) {
