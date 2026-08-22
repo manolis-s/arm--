@@ -11,18 +11,20 @@ if ('serviceWorker' in navigator) {
     });
 }
 
+let stats = {}
 
 const API_URL = "https://armex-q7rd.onrender.com";
 let expenseChart = null
 
 let categoriesData = []
 
-function updateLeledometro() {
-    // Ψάχνει αν έχεις αποθηκεύσει ημερομηνία. Αν όχι, βάζει την default.
-    let savedDate = localStorage.getItem("dischargeDate");
-    if (!savedDate) {
-        savedDate = "2027-09-02";
+function updateLeledometro(savedDate) {
+    
+    if(!savedDate){
+        document.getElementById("days-left").textContent = "Δεν βρέθηκε Ημερομηνία Απόλυσης ΝΕΟΣ. Πάτα δίπλα για να προσθέσεις";
+        return;
     }
+    
 
     const dischargeDate = new Date(savedDate);
     const today = new Date();
@@ -47,7 +49,7 @@ let selectedCategoryId = null
 document.addEventListener("DOMContentLoaded", ()=>{
     fetchCategories();
     fetchStats()
-    updateLeledometro()
+    updateLeledometro(stats.discharge_date);
     fetchRecentExpenses()
 
     const categorySelect = document.getElementById("category-select")
@@ -104,7 +106,7 @@ async function fetchStats() {
             window.location.href = "login.html";
             return;
         }
-        const stats = await response.json();
+        stats = await response.json();
 
         // 1. Αποθηκεύουμε τα νούμερα σε μεταβλητές (και βάζουμε το || 0 για ασφάλεια αν είναι άδεια η βάση)
         const grandTotal = stats.grand_total || 0;
@@ -275,3 +277,10 @@ document.getElementById("delete-all-btn").addEventListener("click", async () => 
         }
     }
 });
+
+//logout 
+document.getElementById("logout-btn").addEventListener("click", () => {
+    if (confirm("Είσαι σίγουρος ότι θέλεις να αποσυνδεθείς;")) {
+        localStorage.removeItem("token");
+        window.location.href = "login.html";
+    }});

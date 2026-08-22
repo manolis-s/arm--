@@ -3,6 +3,7 @@ document.getElementById("register-form").addEventListener("submit", async functi
     e.preventDefault();
     const username = document.getElementById("username").value;
     const password = document.getElementById("password").value;
+    const disch = document.getElementById("discharge-date").value;
 
     const messageDiv = document.getElementById("message");
     const submitBtn = document.getElementById("register-btn");
@@ -17,7 +18,8 @@ document.getElementById("register-form").addEventListener("submit", async functi
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({
                 username: username,
-                password: password
+                password: password,
+                discharge_date: disch
             })
 
         })

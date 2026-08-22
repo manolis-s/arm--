@@ -49,6 +49,7 @@ class ExpenseCreate(BaseModel):
 class UserCreate(BaseModel):
     username: str
     password: str
+    discharge_date: str  
 
 def get_db():
     db = SessionLocal()
@@ -175,6 +176,7 @@ def get_stats(db: Session = Depends(get_db), current_user: models.User = Depends
      .group_by(models.Subcategory.name).all()
 
     return {
+        "discharge_date": current_user.discharge_date,
         "grand_total": round(total_amount, 2),
         "camp_ratio": {
             "inside_camp": round(inside_total, 2),
@@ -202,7 +204,7 @@ def register_user(user: UserCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code = 400, detail = "Το όνομα χρήστη χρησιμοποιείται ήδη")
     
     hashed_pw = get_hashed_password(user.password)
-    new_user = models.User(username=user.username, hashed_password = hashed_pw)
+    new_user = models.User(username=user.username, hashed_password = hashed_pw, discharge_date = user.discharge_date)
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
