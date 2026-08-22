@@ -6,7 +6,10 @@ self.addEventListener('install', (event) => {
 
 // Όταν η εφαρμογή πάει να "τραβήξει" δεδομένα
 self.addEventListener('fetch', (event) => {
-    // Προς το παρόν, του λέμε απλά να αφήνει την κίνηση να περνάει κανονικά στο ίντερνετ
+
+    if (event.request.url.includes('onrender.com') || event.request.method !== 'GET') {
+        return; 
+    }
     event.respondWith(fetch(event.request).catch(() => {
         console.log("Είσαι offline!");
     }));
