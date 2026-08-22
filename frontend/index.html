@@ -6,6 +6,7 @@
     <title>Armέξ</title>
     <link rel = "manifest" href = "manifest.json">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=military_tech" />
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -15,8 +16,8 @@
         <header>
             <div id="leledometro">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-                    <h3>Λελεδόμετρο</h3>
-                    <button id="edit-date-btn" style="background: none; border: none; font-size: 16px; cursor: pointer; padding: 0;">✏️</button>
+                    <h3>Λελεδόμετρο <span class="material-symbols-outlined">military_tech</span></h3>
+                    <button id="edit-date-btn" style="background: none; border: none; font-size: 16px; cursor: pointer; padding: 0;"><span class="material-symbols-outlined">edit</span></button>
                 </div>
                 <p><span id="days-left">ΧΧ</span> μέρες έμειναν!</p>
             </div>
@@ -85,7 +86,7 @@
 
             <section class="card">
                 <h2>Ρυθμίσεις</h2>
-                <button id="delete-all-btn" class="btn-danger">🗑️ Διαγραφή Όλων</button>
+                <button id="delete-all-btn" class="btn-danger"><span class="material-symbols-outlined">delete_forever</span> Διαγραφή Όλων</button>
             </section>
         </main>
 
