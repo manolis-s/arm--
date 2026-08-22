@@ -35,8 +35,8 @@ def get_hashed_password(password: str):
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://manolis-s.github.io"], 
-    allow_credentials=True,
+    allow_origins=["*"], 
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
