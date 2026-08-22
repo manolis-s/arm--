@@ -67,7 +67,7 @@ def get_current_user(token:str=Depends(oauth2_scheme), db: Session = Depends(get
     )
 
     try:
-        paylaod = jwt.decode(token, SECRET_KEY, algorithms = [ALGORITHM])
+        payload = jwt.decode(token, SECRET_KEY, algorithms = [ALGORITHM])
         user_id: str=payload.get("sub")
         if user_id is None: 
             raise credentials_exception
@@ -128,7 +128,7 @@ def add_expense(expense: ExpenseCreate, db: Session = Depends(get_db), current_u
     return {"message": "Το έξοδο καταγράφηκε"}
 
 @app.get("/expenses/recent/")
-def get_recent_expenses(db: Session = Depends(get_db)):
+def get_recent_expenses(db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
     recent = db.query(models.Expense).filter(models.Expense.user_id == current_user.id).order_by(models.Expense.date.desc()).limit(15)
 
     result = []
@@ -212,7 +212,7 @@ def register_user(user: UserCreate, db: Session = Depends(get_db)):
 
 
 
-@app.get("/login")
+@app.post("/login")
 def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session=Depends(get_db)):
     user = db.query(models.User).filter(models.User.username == form_data.username).first()
 
@@ -224,7 +224,7 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session=Depends(
         )
 
     access_token = create_access_token(data={"sub": str(user.id)})
-    return({"access_token": access_token, token_type: "bearer"})
+    return({"access_token": access_token, 'token_type': "bearer"})
 
 
     
