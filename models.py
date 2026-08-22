@@ -26,6 +26,17 @@ class Expense(Base):
     amount = Column(Float, nullable = False)
     description = Column(String, default="")
     date = Column(DateTime, default = datetime.utcnow)
+    user_id = Column(Integer, ForeignKey("users.id"), index=True)
 
+    user = relationship("User", back_populates = 'expenses')
     subcategory_id = Column(Integer, ForeignKey("subcategories.id"))
     subcategory = relationship("Subcategory", back_populates = 'expenses')
+
+class User(Base):
+    __tablename__ = 'users'
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String, unique=True, index=True)
+    hashed_password = Column(String)
+
+    expenses = relationship("Expense", back_populates="user")
+

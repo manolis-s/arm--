@@ -1,18 +1,41 @@
 import uvicorn
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, HTTPException,status
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+import jwt
+from datetime import timedelta, datetime
+from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 from sqlalchemy import func
-from fastapi.middleware.cors import CORSMiddleware  # <-- ΑΥΤΗ Η ΓΡΑΜΜΗ ΕΛΕΙΠΕ!
+from fastapi.middleware.cors import CORSMiddleware
 import models
+from jwt.exceptions import InvalidTokenError
 from database import engine, SessionLocal
 from pydantic import BaseModel
 
 models.Base.metadata.create_all(bind=engine)
 app = FastAPI(title = "Arm-έξ: Παρακολούθηση Εξόδων Θητείας")
 
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+SECRET_KEY = "kjbj83n3n440jndnsdnfdsfds93224msnworjaa402mrgden"
+ALGORITHM = 'HS256'
+
+def verify_password(plain_password, hashed_password):
+    return pwd_context.verify(plain_password, hashed_password)
+
+def create_access_token(data: dict):
+    to_encode = data.copy()
+    expire = datetime.utcnow() + timedelta(days=7)
+    to_encode.update({"exp": expire})
+
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+
+def get_hashed_password(password: str):
+    return pwd_context.hash(password)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # Επιτρέπει σε όλα τα frontends να μιλήσουν στο API
+    allow_origins=["*"], 
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -23,12 +46,40 @@ class ExpenseCreate(BaseModel):
     subcategory_id: int
     description: str = ""
 
+class UserCreate(BaseModel):
+    username: str
+    password: str
+
 def get_db():
     db = SessionLocal()
     try:
         yield db
     finally: 
         db.close()
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+
+def get_current_user(token:str=Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    credentials_exception = HTTPException(
+        status_code = status.HTTP_401_UNAUTHORIZED,
+        detail = "Δεν ήταν δυνατή η επαλήθευση",
+        headers = {"WWW-Authenticate": "Bearer"}
+    )
+
+    try:
+        paylaod = jwt.decode(token, SECRET_KEY, algorithms = [ALGORITHM])
+        user_id: str=payload.get("sub")
+        if user_id is None: 
+            raise credentials_exception
+       
+    except InvalidTokenError:
+        raise credentials_exception
+    
+    user = db.query(models.User).filter(models.User.id == int(user_id)).first()
+    if user is None:
+        raise credentials_exception
+    return user
+
 
 #dhmioyrgia vasis dedomenwn
 @app.on_event("startup")
@@ -50,7 +101,8 @@ def seed_data():
                 sub = models.Subcategory(name = sub_name, category_id = category.id)
                 db.add(sub)
         db.commit()
-    db.close()
+        db.close()
+    
 
 #endpoints - pame na doume
 @app.get("/categories/")
@@ -63,11 +115,12 @@ def get_categories(db: Session = Depends(get_db)):
     return result
 
 @app.post("/expenses/")
-def add_expense(expense: ExpenseCreate, db: Session = Depends(get_db)):
+def add_expense(expense: ExpenseCreate, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
     db_expense = models.Expense(
         amount = expense.amount, 
         subcategory_id = expense.subcategory_id, 
-        description = expense.description
+        description = expense.description, 
+        user_id = current_user.id
     )
     db.add(db_expense)
     db.commit()
@@ -76,7 +129,7 @@ def add_expense(expense: ExpenseCreate, db: Session = Depends(get_db)):
 
 @app.get("/expenses/recent/")
 def get_recent_expenses(db: Session = Depends(get_db)):
-    recent = db.query(models.Expense).order_by(models.Expense.date.desc()).limit(15)
+    recent = db.query(models.Expense).filter(models.Expense.user_id == current_user.id).order_by(models.Expense.date.desc()).limit(15)
 
     result = []
     for exp in recent:
@@ -90,13 +143,18 @@ def get_recent_expenses(db: Session = Depends(get_db)):
     return result
 
 @app.get("/stats/")
-def get_stats(db: Session = Depends(get_db)):
-    total_amount = db.query(func.sum(models.Expense.amount)).scalar() or 0
+def get_stats(db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    # Προσθέσαμε ΠΑΝΤΟΥ το .filter(models.Expense.user_id == current_user.id)
+    
+    total_amount = db.query(func.sum(models.Expense.amount))\
+        .filter(models.Expense.user_id == current_user.id).scalar() or 0.0
 
     inside_total = db.query(func.sum(models.Expense.amount))\
         .join(models.Subcategory, models.Expense.subcategory_id == models.Subcategory.id)\
         .join(models.Category, models.Subcategory.category_id == models.Category.id)\
+        .filter(models.Expense.user_id == current_user.id)\
         .filter(models.Category.is_inside_camp == True).scalar() or 0.0
+        
     outside_total = total_amount - inside_total
 
     cat_stats = db.query(
@@ -105,13 +163,16 @@ def get_stats(db: Session = Depends(get_db)):
     ).select_from(models.Expense)\
      .join(models.Subcategory, models.Expense.subcategory_id == models.Subcategory.id)\
      .join(models.Category, models.Subcategory.category_id == models.Category.id)\
+     .filter(models.Expense.user_id == current_user.id)\
      .group_by(models.Category.name).all()
 
     subcat_stats = db.query(
         models.Subcategory.name,
         func.sum(models.Expense.amount).label("total_sum"),
         func.count(models.Expense.id).label("total_count")
-    ).join(models.Expense).group_by(models.Subcategory.name).all()
+    ).join(models.Expense)\
+     .filter(models.Expense.user_id == current_user.id)\
+     .group_by(models.Subcategory.name).all()
 
     return {
         "grand_total": round(total_amount, 2),
@@ -127,11 +188,46 @@ def get_stats(db: Session = Depends(get_db)):
     }
 
 @app.delete("/expenses/all/")
-def delete_all_expenses(db: Session = Depends(get_db)):
-    db.query(models.Expense).delete()   
+def delete_all_expenses(db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    db.query(models.Expense).filter(models.Expense.user_id == current_user.id).delete()   
     db.commit()
-    return {"message": "Όλα τα έξοδα διαγράφηκαν"}
+    return {"message": "Όλα τα έξοδά σου διαγράφηκαν"}
 
+#-----------------USERS----------------------
+
+@app.post("/register/")
+def register_user(user: UserCreate, db: Session = Depends(get_db)):
+    db_user = db.query(models.User).filter(models.User.username == user.username).first()
+    if db_user:
+        raise HTTPException(status_code = 400, detail = "Το όνομα χρήστη χρησιμοποιείται ήδη")
+    
+    hashed_pw = get_hashed_password(user.password)
+    new_user = models.User(username=user.username, hashed_password = hashed_pw)
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+
+    return {"message": "Ο λογαριασμός δημιουργήθηκε με επιτυχία!"}
+
+
+
+
+@app.get("/login")
+def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session=Depends(get_db)):
+    user = db.query(models.User).filter(models.User.username == form_data.username).first()
+
+    if not user or not verify_password(form_data.password, user.hashed_password):
+        raise HTTPException(
+            status_code = status.HTTP_401_UNAUTHORIZED,
+            detail = "Λάθος όνομα χρήστη ή κωδικός!",
+            headers={"WWW-Authenticate": "Bearer"}
+        )
+
+    access_token = create_access_token(data={"sub": str(user.id)})
+    return({"access_token": access_token, token_type: "bearer"})
+
+
+    
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
 
