@@ -156,7 +156,22 @@ def get_recent_expenses(
                  .limit(limit)\
                  .all()
     
-    return expenses
+    result = []
+    for exp in expenses:
+        # Βρίσκουμε την υποκατηγορία και την κατηγορία της (προσαρμόσε τα ονόματα αν στη βάση σου λένε διαφορετικά)
+        sub_name = exp.subcategory.name if exp.subcategory else "Άγνωστο"
+        cat_name = exp.subcategory.category.name if (exp.subcategory and exp.subcategory.category) else "Άγνωστο"
+        
+        result.append({
+            "id": exp.id,
+            "amount": exp.amount,
+            "date": exp.date,
+            "description": exp.description,
+            "subcategory": sub_name,
+            "category": cat_name
+        })
+        
+    return result
 
 @app.get("/stats/")
 def get_stats(db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
