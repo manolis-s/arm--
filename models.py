@@ -21,6 +21,12 @@ class Subcategory(Base):
     category = relationship("Category", back_populates = "subcategories")
     expenses = relationship("Expense", back_populates = 'subcategory')
 
+
+def get_greek_time():
+    greece_tz = pytz.timezone('Europe/Athens')
+    return datetime.now(greece_tz).replace(tzinfo=None)
+
+
 class Expense(Base):
     __tablename__ = 'expenses'
     id = Column(Integer, primary_key = True, index=True)
@@ -33,9 +39,7 @@ class Expense(Base):
     subcategory_id = Column(Integer, ForeignKey("subcategories.id"))
     subcategory = relationship("Subcategory", back_populates = 'expenses')
 
-def get_greek_time():
-    greece_tz = pytz.timezone('Europe/Athens')
-    return datetime.now(greece_tz).replace(tzinfo=None)
+
 
 class User(Base):
     __tablename__ = 'users'
