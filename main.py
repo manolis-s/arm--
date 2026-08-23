@@ -167,7 +167,7 @@ def get_stats(db: Session = Depends(get_db), current_user: models.User = Depends
      .filter(models.Expense.user_id == current_user.id)\
      .group_by(models.Category.name).all()
 
-    subcats_stats = db.query)(
+    subcats_stats = db.query(
         models.Subcategory.name,
         models.Category.name,
         func.sum(models.Expense.amount).label("total_sum"),
