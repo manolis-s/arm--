@@ -17,7 +17,7 @@ app = FastAPI(title = "Arm-έξ: Παρακολούθηση Εξόδων Θητ�
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-SECRET_KEY = "kjbj83n3n440jndnsdnfdsfds93224msnworjaa402mrgden"
+SECRET_KEY = os.getenv("SECRET_KEY", "ena-prosorino-kleidi")
 ALGORITHM = 'HS256'
 
 def verify_password(plain_password, hashed_password):
