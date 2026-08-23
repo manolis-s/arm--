@@ -49,7 +49,6 @@ let selectedCategoryId = null
 document.addEventListener("DOMContentLoaded", ()=>{
     fetchCategories();
     fetchStats()
-    updateLeledometro(stats.discharge_date);
     fetchRecentExpenses()
 
     const categorySelect = document.getElementById("category-select")
@@ -107,6 +106,8 @@ async function fetchStats() {
             return;
         }
         stats = await response.json();
+
+        updateLeledometro(stats.discharge_date)
 
         // 1. Αποθηκεύουμε τα νούμερα σε μεταβλητές (και βάζουμε το || 0 για ασφάλεια αν είναι άδεια η βάση)
         const grandTotal = stats.grand_total || 0;
