@@ -126,6 +126,34 @@ async function fetchStats() {
         // 4. Ζωγραφίζουμε το γράφημα!
         updateChart(insideTotal, outsideTotal);
 
+        const subcategoryList = document.getElementById("subcategory-list")
+        subcategoryList.innerHTML = ""
+        if(stats.by_subcategory.length === 0){
+            subcategoryList.innerHTML = '<li class="empty-msg" style="text-align:center; padding:10px; color:gray;">Δεν έχεις καταγράψει ακόμα έξοδα.</li>'
+            return;
+        } else{
+            stats.by_subcategory.forEach(sub=>{
+                const li = document.createElement("li")
+                li.style.display = "flex"
+                li.style.justifyContent = 'space-between'
+                li.style.padding = '12px 0'
+                li.style.borderBottom = '1px solid #eee'
+
+                li.innerHTML = `
+                    <div>
+                        <strong style="color: #2c3e50;">${item.name}</strong> 
+                        <small style="color: gray;">(${item.category})</small>
+                        <br>
+                        <small style="color: #888; font-size:12px;">Αγορές: <b>${item.times_bought}</b></small>
+                    </div>
+                    <div style="color: #4b5320; font-weight: bold; font-size: 16px; display: flex; align-items: center;">
+                        ${item.total_cost.toFixed(2)} €
+                    </div>
+                `;
+                subcategoryList.appendChild(li);
+            });
+        }
+        
     } catch (error) {
         console.error("Σφάλμα φόρτωσης στατιστικών:", error);
     }
@@ -239,22 +267,6 @@ function updateChart(insideAmount, outsideAmount) {
     });
 }
 
-// --- ΑΛΛΑΓΗ ΗΜΕΡΟΜΗΝΙΑΣ (Μολυβάκι) ---
-document.getElementById("edit-date-btn").addEventListener("click", () => {
-    let currentSaved = localStorage.getItem("dischargeDate") || "2027-09-02";
-    // Ζητάμε από τον χρήστη να γράψει τη νέα
-    let newDate = prompt("Βάλε τη νέα ημερομηνία απόλυσης (Μορφή: ΕΕΕΕ-ΜΜ-ΗΗ):", currentSaved);
-    
-    if (newDate) {
-        // Ελέγχουμε αν είναι όντως ημερομηνία
-        if (!isNaN(new Date(newDate).getTime())) {
-            localStorage.setItem("dischargeDate", newDate); // Αποθήκευση στο κινητό
-            updateLeledometro(); // Ανανέωση του αριθμού αμέσως
-        } else {
-            alert("Λάθος μορφή ημερομηνίας! Πρέπει να είναι ΕΕΕΕ-ΜΜ-ΗΗ.");
-        }
-    }
-});
 
 // --- ΔΙΑΓΡΑΦΗ ΟΛΩΝ ΤΩΝ ΕΞΟΔΩΝ ---
 document.getElementById("delete-all-btn").addEventListener("click", async () => {

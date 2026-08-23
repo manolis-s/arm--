@@ -167,13 +167,16 @@ def get_stats(db: Session = Depends(get_db), current_user: models.User = Depends
      .filter(models.Expense.user_id == current_user.id)\
      .group_by(models.Category.name).all()
 
-    subcat_stats = db.query(
+    subcats_stats = db.query)(
         models.Subcategory.name,
+        models.Category.name,
         func.sum(models.Expense.amount).label("total_sum"),
-        func.count(models.Expense.id).label("total_count")
-    ).join(models.Expense)\
+        func.count(models.Expense.id).label("count")
+    ).select_from(models.Expense)\
+     .join(models.Subcategory, models.Expense.subcategory_id == models.Subcategory.id)\
+     .join(models.Category, models.Subcategory.category_id == models.Category.id)\
      .filter(models.Expense.user_id == current_user.id)\
-     .group_by(models.Subcategory.name).all()
+     .group_by(models.Subcategory.id, models.Subcategory.name, models.Category.name).all()
 
     return {
         "discharge_date": current_user.discharge_date,
@@ -183,10 +186,7 @@ def get_stats(db: Session = Depends(get_db), current_user: models.User = Depends
             "outside_camp": round(outside_total, 2)
         },
         "by_category": [{"name": name, "total": round(total, 2)} for name, total in cat_stats],
-        "by_subcategory": [
-            {"name": name, "total_cost": round(tot, 2), "times_bought": count} 
-            for name, tot, count in subcat_stats
-        ]
+        "by_subcategory": [{"name": sub_name, "category": cat_name, "total": round(tot, 2), "count": count} for sub_name, cat_name, tot, count in subcats_stats]
     }
 
 @app.delete("/expenses/all/")
