@@ -164,7 +164,7 @@ const expenseForm = document.getElementById("expense-form")
 expenseForm.addEventListener("submit", async (event)=>{
     event.preventDefault()
     
-    const submitBtn = event.targer.querySelector("button[type='submit']")
+    const submitBtn = event.target.querySelector("button[type='submit']")
 
     submitBtn.disabled = true;
     submitBtn.textContent = "Καταχώρηση..."
