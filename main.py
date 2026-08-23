@@ -34,10 +34,18 @@ def create_access_token(data: dict):
 def get_hashed_password(password: str):
     return pwd_context.hash(password)
 
+
+origins = [
+    "http://localhost",
+    "http://localhost:5500",     # Τοπικός Live Server (αν τον χρησιμοποιείς)
+    "http://127.0.0.1:5500",     # Τοπικός Live Server (εναλλακτικό)
+    "https://armex-q7rd.onrender.com" # Το πραγματικό σου site!
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], 
-    allow_credentials=False,
+    allow_origins=origins, 
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -132,20 +140,22 @@ def add_expense(expense: ExpenseCreate, db: Session = Depends(get_db), current_u
     db.refresh(db_expense)
     return {"message": "Το έξοδο καταγράφηκε"}
 
-@app.get("/expenses/recent/")
-def get_recent_expenses(db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
-    recent = db.query(models.Expense).filter(models.Expense.user_id == current_user.id).order_by(models.Expense.date.desc()).limit(15)
-
-    result = []
-    for exp in recent:
-        result.append({
-            "id": exp.id,
-            "amount": exp.amount, 
-            "category": exp.subcategory.category.name,
-            "subcategory": exp.subcategory.name,
-            "date": exp.date.strftime("%d/%m/%Y %H:%M")
-        })
-    return result
+@app.get("/expenses/recent")
+def get_recent_expenses(
+    skip: int = 0, 
+    limit: int = 10, 
+    db: Session = Depends(get_db), 
+    current_user: models.User = Depends(get_current_user)
+):
+   
+    expenses = db.query(models.Expense)\
+                 .filter(models.Expense.user_id == current_user.id)\
+                 .order_by(models.Expense.date.desc())\
+                 .offset(skip)\
+                 .limit(limit)\
+                 .all()
+    
+    return expenses
 
 @app.get("/stats/")
 def get_stats(db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):

@@ -164,6 +164,11 @@ const expenseForm = document.getElementById("expense-form")
 expenseForm.addEventListener("submit", async (event)=>{
     event.preventDefault()
     
+    const submitBtn = event.targer.querySelector("button[type='submit']")
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Καταχώρηση..."
+
     const amountValue = parseFloat(document.getElementById("amount").value)
     const subcategoryIdValue = parseInt(document.getElementById("subcategory-select").value)
     const descriptionValue = document.getElementById("description").value
@@ -186,6 +191,10 @@ expenseForm.addEventListener("submit", async (event)=>{
         if(response.ok){
             alert("Η καταχώρηση εξόδου ήταν επιτυχής!")
             window.location.reload()
+        }else{
+            alert("Κάτι πήγε στραβά.")
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Αποθήκευση"
         }
     } catch (error) {
         console.error("Σφάλμα καταχώρησης εξόδου:", error)
