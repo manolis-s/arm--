@@ -186,7 +186,7 @@ def get_stats(db: Session = Depends(get_db), current_user: models.User = Depends
             "outside_camp": round(outside_total, 2)
         },
         "by_category": [{"name": name, "total": round(total, 2)} for name, total in cat_stats],
-        "by_subcategory": [{"name": sub_name, "category": cat_name, "total": round(tot, 2), "count": count} for sub_name, cat_name, tot, count in subcats_stats]
+        "by_subcategory": [{"name": sub_name, "category": cat_name, "total_cost": round(tot, 2), "times_bought": count} for sub_name, cat_name, tot, count in subcats_stats]
     }
 
 @app.delete("/expenses/all/")
