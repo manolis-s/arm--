@@ -37,9 +37,10 @@ def get_hashed_password(password: str):
 
 origins = [
     "http://localhost",
-    "http://localhost:5500",     # Τοπικός Live Server (αν τον χρησιμοποιείς)
-    "http://127.0.0.1:5500",     # Τοπικός Live Server (εναλλακτικό)
-    "https://armex-q7rd.onrender.com" # Το πραγματικό σου site!
+    "http://localhost:5500",     
+    "http://127.0.0.1:5500",     
+    "https://armex-q7rd.onrender.com",
+    "https://manolis-s.github.io" 
 ]
 
 app.add_middleware(
