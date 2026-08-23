@@ -18,6 +18,14 @@
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
                     <h3>Λελεδόμετρο <span class="material-symbols-outlined">military_tech</span></h3>
                 </div>
+                <div style="position: relative; display: inline-block; width: 24px; height: 24px;">
+            <!-- Το ορατό εικονίδιο -->
+                    <span class="material-symbols-outlined" style="position: absolute; top: 0; left: 0; color: #555; pointer-events: none;">
+                        edit_calendar
+                    </span>
+                    <!-- Το διάφανο ημερολόγιο που πιάνει όλο τον χώρο -->
+                    <input type="date" id="discharge-date-picker" style="opacity: 0; position: absolute; top: 0; left: 0; width: 100%; height: 100%; cursor: pointer;" title="Αλλαγή Ημερομηνίας">
+                </div>
                 <p><span id="days-left">ΧΧ</span> μέρες έμειναν!</p>
             </div>
             

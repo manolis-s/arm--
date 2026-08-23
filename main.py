@@ -46,6 +46,9 @@ class ExpenseCreate(BaseModel):
     subcategory_id: int
     description: str = ""
 
+class DateUpdate(BaseModel):
+    discharge_date: str
+
 class UserCreate(BaseModel):
     username: str
     password: str
@@ -195,6 +198,12 @@ def delete_all_expenses(db: Session = Depends(get_db), current_user: models.User
     db.commit()
     return {"message": "Όλα τα έξοδά σου διαγράφηκαν"}
 
+
+@app.put("/users/update-date")
+def update_date(date_data: DateUpdate, db: Session = Depends(get_db),current_user: models.User = Depends(get_current_user)):
+    current_user.discharge_date = date_data.discharge_date
+    db.commit()
+    return{"message": "Η ημερομηνία ανανεώθηκε"}
 #-----------------USERS----------------------
 
 @app.post("/register/")

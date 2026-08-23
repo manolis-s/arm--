@@ -297,3 +297,28 @@ document.getElementById("logout-btn").addEventListener("click", () => {
         localStorage.removeItem("token");
         window.location.href = "login.html";
     }});
+
+//epeksergasia imerominia apolysis
+document.getElementById("discharge-date-picker").addEventListener("change", async(e)=>{
+    const newDate = e.target.value;
+    if(newDate){
+        try{
+            const response = await fetch(`${API_URL}/users/update-date`,{
+                method: 'PUT',
+                headers:{
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({ discharge_date: newDate}) 
+            })
+            if(response.ok){
+                alert(response.message)
+                fetchStats()
+            }else{
+                alert("Κάτι πήγε στραβά!")
+            }
+        } catch(error){
+            console.error("Σφάλμα ενημέρωσης:", error)
+        }
+    }
+})
