@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, Float, DateTime, Boolean, Foreig
 from database import Base
 from datetime import datetime
 from sqlalchemy.orm import relationship
+import pytz
 
 class Category(Base):
     __tablename__='categories'
@@ -25,12 +26,16 @@ class Expense(Base):
     id = Column(Integer, primary_key = True, index=True)
     amount = Column(Float, nullable = False)
     description = Column(String, default="")
-    date = Column(DateTime, default = datetime.utcnow)
+    date = Column(DateTime, default = get_greek_time)
     user_id = Column(Integer, ForeignKey("users.id"), index=True)
 
     user = relationship("User", back_populates = 'expenses')
     subcategory_id = Column(Integer, ForeignKey("subcategories.id"))
     subcategory = relationship("Subcategory", back_populates = 'expenses')
+
+def get_greek_time():
+    greece_tz = pytz.timezone('Europe/Athens')
+    return datetime.now(greece_tz).replace(tzinfo=None)
 
 class User(Base):
     __tablename__ = 'users'
