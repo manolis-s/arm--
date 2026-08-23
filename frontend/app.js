@@ -246,7 +246,7 @@ async function fetchRecentExpenses(){
 window.deleteExpense = async function(expenseId){
     if(confirm("Θέλεις σίγουρα να διαγράψεις αυτό το έξοδο;")){
         try{
-            const reponse = await fetch(`${API_URL}/expenses/${expenseId}`,{
+            const response = await fetch(`${API_URL}/expenses/${expenseId}`,{
                 method: 'DELETE',
                 headers: {"Authorization": `Bearer ${token}`}
             })
