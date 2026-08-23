@@ -141,13 +141,13 @@ async function fetchStats() {
 
                 li.innerHTML = `
                     <div>
-                        <strong style="color: #2c3e50;">${item.name}</strong> 
-                        <small style="color: gray;">(${item.category})</small>
+                        <strong style="color: #2c3e50;">${sub.name}</strong> 
+                        <small style="color: gray;">(${sub.category})</small>
                         <br>
-                        <small style="color: #888; font-size:12px;">Αγορές: <b>${item.times_bought}</b></small>
+                        <small style="color: #888; font-size:12px;">Αγορές: <b>${sub.times_bought}</b></small>
                     </div>
                     <div style="color: #4b5320; font-weight: bold; font-size: 16px; display: flex; align-items: center;">
-                        ${item.total_cost.toFixed(2)} €
+                        ${sub.total_cost.toFixed(2)} €
                     </div>
                 `;
                 subcategoryList.appendChild(li);
