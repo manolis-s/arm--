@@ -222,6 +222,14 @@ async function fetchRecentExpenses(){
                 </div>
                 <div style="color: #4b5320; font-weight: bold; font-size: 16px; display: flex; align-items: center;">
                     ${exp.amount.toFixed(2)} €
+                    <span class="material-symbols-outlined" 
+                          style="color: #e74c3c; cursor: pointer; font-size: 20px; transition: 0.3s;" 
+                          onmouseover="this.style.color='#c0392b'" 
+                          onmouseout="this.style.color='#e74c3c'"
+                          onclick="deleteExpense(${exp.id})"
+                          title="Διαγραφή εξόδου">
+                        delete
+                    </span>
                 </div>
             `;
 
@@ -229,6 +237,30 @@ async function fetchRecentExpenses(){
         })
     } catch (error){
         console.error("Σφάλμα φόρτωσης πρόσφατων εξόδων", error)
+    }
+}
+
+
+//- delete - //
+
+window.deleteExpense = async function(expenseId){
+    if(confirm("Θέλεις σίγουρα να διαγράψεις αυτό το έξοδο;")){
+        try{
+            const reponse = await fetch(`${API_URL}/expenses/${expenseId}`,{
+                method: 'DELETE',
+                headers: {"Authorization": `Bearer ${token}`}
+            })
+            if(response.ok){
+                fetchStats()
+                fetchRecentExpenses()
+
+            } else{
+                alert("Αποτυχία διαγραφής")
+            }
+        } catch (error){
+            console.error("Σφάλμα σύνδεσης:", error)
+            alert("Σφάλμα σύνδεσης")
+        }
     }
 }
 

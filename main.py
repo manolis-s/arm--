@@ -237,6 +237,15 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session=Depends(
     access_token = create_access_token(data={"sub": str(user.id)})
     return({"access_token": access_token, 'token_type': "bearer"})
 
+@app.delete("/expenses/{expense_id}")
+def delete_expense(expense_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    expense = db.query(models.Expense).filter(models.Expense.id == expense_id, models.Expense.user_id == current_user.id).first()
+    if not expense:
+        raise HTTPException(status_code=404, detail="Το έξοδο δεν βρέθηκε")
+
+    db.delete(expense)
+    db.commit()
+    return{"message": "Το έξοδο διεγράφη!"}
 
     
 if __name__ == "__main__":
