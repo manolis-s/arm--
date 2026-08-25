@@ -109,21 +109,22 @@ async function fetchStats() {
 
         updateLeledometro(stats.discharge_date)
 
-        // 1. Αποθηκεύουμε τα νούμερα σε μεταβλητές (και βάζουμε το || 0 για ασφάλεια αν είναι άδεια η βάση)
+        
+
         const grandTotal = stats.grand_total || 0;
         const insideTotal = stats.camp_ratio.inside_camp || 0;
         const outsideTotal = stats.camp_ratio.outside_camp || 0;
 
-        // 2. Ενημερώνουμε την πάνω κάρτα (στο Header)
+        
         document.getElementById("grand-total").textContent = `${grandTotal.toFixed(2)} €`;
         document.getElementById("inside-total").textContent = `${insideTotal.toFixed(2)} €`;
         document.getElementById("outside-total").textContent = `${outsideTotal.toFixed(2)} €`;
 
-        // 3. Ενημερώνουμε την κάτω κάρτα (στην Ανάλυση Εξόδων)
+        
         document.getElementById("analysis-inside-total").textContent = `${insideTotal.toFixed(2)} €`;
         document.getElementById("analysis-outside-total").textContent = `${outsideTotal.toFixed(2)} €`;
 
-        // 4. Ζωγραφίζουμε το γράφημα!
+        
         updateChart(insideTotal, outsideTotal);
 
         const subcategoryList = document.getElementById("subcategory-list")
@@ -277,12 +278,11 @@ window.deleteExpense = async function(expenseId){
 function updateChart(insideAmount, outsideAmount) {
     const ctx = document.getElementById('myChart');
 
-    // Αν υπάρχει ήδη γράφημα (από προηγούμενη φόρτωση), το καταστρέφουμε για να βάλουμε το νέο
+    
     if (expenseChart !== null) {
         expenseChart.destroy();
     }
 
-    // Φτιάχνουμε το νέο γράφημα τύπου "ντόνατ"
     expenseChart = new Chart(ctx, {
         type: 'doughnut', 
         data: {
@@ -290,18 +290,18 @@ function updateChart(insideAmount, outsideAmount) {
             datasets: [{
                 data: [insideAmount, outsideAmount],
                 backgroundColor: [
-                    '#4b5320', // Χακί για μέσα
-                    '#1f2937'  // Σκούρο γκρι/μπλε για έξω
+                    '#4b5320', 
+                    '#1f2937'  
                 ],
                 borderWidth: 2,
-                borderColor: '#ffffff' // Άσπρο περίγραμμα για να ξεχωρίζουν
+                borderColor: '#ffffff' 
             }]
         },
         options: {
             responsive: true,
             plugins: {
                 legend: {
-                    position: 'bottom', // Η λεζάντα να μπει από κάτω
+                    position: 'bottom', 
                 }
             }
         }
@@ -309,9 +309,7 @@ function updateChart(insideAmount, outsideAmount) {
 }
 
 
-// --- ΔΙΑΓΡΑΦΗ ΟΛΩΝ ΤΩΝ ΕΞΟΔΩΝ ---
 document.getElementById("delete-all-btn").addEventListener("click", async () => {
-    // Επιβεβαίωση για να μην πατηθεί κατά λάθος
     if (confirm("ΕΙΣΑΙ ΣΙΓΟΥΡΟΣ; Θα διαγραφούν ΟΛΑ τα έξοδα οριστικά! Δεν υπάρχει επιστροφή.")) {
         try {
             const response = await fetch(`${API_URL}/expenses/all/`, {
@@ -321,7 +319,6 @@ document.getElementById("delete-all-btn").addEventListener("click", async () => 
             
             if (response.ok) {
                 alert("Τα έξοδά σου διαγράφηκαν!");
-                // Ανανεώνουμε τα στατιστικά και τη λίστα για να μηδενίσουν στην οθόνη
                 fetchStats();
                 fetchRecentExpenses();
             }

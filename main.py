@@ -51,6 +51,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+
+#ορισμος διαδικασιων μην εχουμε τρεξιματα
 class ExpenseCreate(BaseModel):
     amount: float
     subcategory_id: int
@@ -64,6 +67,7 @@ class UserCreate(BaseModel):
     password: str
     discharge_date: str  
 
+#συνδεση με τη βαση
 def get_db():
     db = SessionLocal()
     try:
@@ -73,6 +77,8 @@ def get_db():
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
+
+#βρισκουμε ποιος χρηστης ειναι συνδεδεδεμενος 
 def get_current_user(token:str=Depends(oauth2_scheme), db: Session = Depends(get_db)):
     credentials_exception = HTTPException(
         status_code = status.HTTP_401_UNAUTHORIZED,
@@ -118,7 +124,12 @@ def seed_data():
         db.close()
     
 
-#endpoints - pame na doume
+#-----------------ENDPOINTS----------------------
+#-------------------------------------------------
+
+
+
+#gemizei tis katigories stin forma
 @app.get("/categories/")
 def get_categories(db: Session = Depends(get_db)):
     categories = db.query(models.Category).all()
@@ -128,6 +139,7 @@ def get_categories(db: Session = Depends(get_db)):
         result.append({"id":cat.id, "name":cat.name, "is_inside_camp": cat.is_inside_camp, 'subcategories': subs})
     return result
 
+#prosthiki neou eksodou 
 @app.post("/expenses/")
 def add_expense(expense: ExpenseCreate, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
     db_expense = models.Expense(
@@ -141,6 +153,7 @@ def add_expense(expense: ExpenseCreate, db: Session = Depends(get_db), current_u
     db.refresh(db_expense)
     return {"message": "Το έξοδο καταγράφηκε"}
 
+#gemizei ti sxetiki karta me ta prosfata eksoda tou xristi
 @app.get("/expenses/recent")
 def get_recent_expenses(
     skip: int = 0, 
@@ -158,7 +171,7 @@ def get_recent_expenses(
     
     result = []
     for exp in expenses:
-        # Βρίσκουμε την υποκατηγορία και την κατηγορία της (προσαρμόσε τα ονόματα αν στη βάση σου λένε διαφορετικά)
+       
         sub_name = exp.subcategory.name if exp.subcategory else "Άγνωστο"
         cat_name = exp.subcategory.category.name if (exp.subcategory and exp.subcategory.category) else "Άγνωστο"
         
@@ -173,6 +186,7 @@ def get_recent_expenses(
         
     return result
 
+#εδω παιρνουμε τα στατιστικα του χρηστη, ολα τα εξοδα, μεσα στο στρατοπεδο και εξω, ανα κατηγορια και υποκατηγορια
 @app.get("/stats/")
 def get_stats(db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
     # Προσθέσαμε ΠΑΝΤΟΥ το .filter(models.Expense.user_id == current_user.id)
@@ -219,13 +233,14 @@ def get_stats(db: Session = Depends(get_db), current_user: models.User = Depends
         "by_subcategory": [{"name": sub_name, "category": cat_name, "total_cost": round(tot, 2), "times_bought": count} for sub_name, cat_name, tot, count in subcats_stats]
     }
 
+#απλο
 @app.delete("/expenses/all/")
 def delete_all_expenses(db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
     db.query(models.Expense).filter(models.Expense.user_id == current_user.id).delete()   
     db.commit()
     return {"message": "Όλα τα έξοδά σου διαγράφηκαν"}
 
-
+#απλο
 @app.put("/users/update-date")
 def update_date(date_data: DateUpdate, db: Session = Depends(get_db),current_user: models.User = Depends(get_current_user)):
     current_user.discharge_date = date_data.discharge_date
